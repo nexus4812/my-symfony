@@ -11,9 +11,12 @@ use Siler\Swoole;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 
-$container = Container::createContainer();
+error_reporting(1); // for testing
+
+$container = Container::getContainer();
 
 $handler = function (Request $request, Response $response) use ($container): void {
+    // create http handler
     $res = function (string $controllerName) use ($container, $request, $response): callable {
         /** @var ControllerInterface $controller */
         $controller = $container->get($controllerName);
@@ -24,7 +27,7 @@ $handler = function (Request $request, Response $response) use ($container): voi
         };
     };
 
-
+    // set routing
     Siler\Route\get('/foo', $res(TopController::class));
     Siler\Route\get('/mongo/ping', $res(PingController::class));
     Siler\Route\get('/mongo/sandbox', $res(RequestCaptureController::class));

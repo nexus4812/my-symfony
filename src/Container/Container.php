@@ -17,7 +17,7 @@ class Container implements ContainerInterface
     /**
      * @var array<class-string, object>
      */
-    private static array $container = [];
+    private array $dependencies = [];
 
     /**
      * @deprecated use createContainer method
@@ -31,9 +31,9 @@ class Container implements ContainerInterface
      * @param T $object
      * @return void
      */
-    private static function set(string $id, object $object)
+    private function set(string $id, object $object)
     {
-        self::$container[$id] = $object;
+        $this->dependencies[$id] = $object;
     }
 
     /**
@@ -43,7 +43,7 @@ class Container implements ContainerInterface
     public function get(string $id)
     {
         if ($this->has($id)) {
-            return self::$container[$id];
+            return $this->dependencies[$id];
         }
 
         // TODO use NotFoundExceptionInterface
@@ -56,17 +56,19 @@ class Container implements ContainerInterface
      */
     public function has(string $id): bool
     {
-        return array_key_exists($id, self::$container);
+        return array_key_exists($id, $this->dependencies);
     }
 
-    public static function createContainer(): self
+    public static function getContainer(): self
     {
+        $container = new self();
         $client = self::createMongoClient();
-        self::set(Client::class, $client);
-        self::set(TopController::class, new TopController($client));
-        self::set(PingController::class, new PingController($client));
-        self::set(RequestCaptureController::class, new RequestCaptureController($client));
-        return new self();
+        $container->set(Client::class, $client);
+        $container->set(TopController::class, new TopController());
+        $container->set(PingController::class, new PingController($client));
+        $container->set(RequestCaptureController::class, new RequestCaptureController($client));
+
+        return $container;
     }
 
     private static function createMongoClient(): Client

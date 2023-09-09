@@ -2,7 +2,7 @@ version: '3.1'
 
 services:
   swoole:
-    container_name: siler_swoole
+    container_name: swoole
     build:
       context: .
       dockerfile: ./docker/swoole/Dockerfile
@@ -12,6 +12,16 @@ services:
       - ./:/app
     working_dir: /app
 #    entrypoint: 'php /app/index.php'
+
+  apache:
+    container_name: apache
+    build:
+      context: .
+      dockerfile: ./docker/apache/Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www
 
   mongo:
     image: mongo

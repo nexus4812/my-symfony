@@ -17,8 +17,9 @@ readonly class RequestCaptureController implements ControllerInterface
     public function __invoke(Request $request, Response $response): Response
     {
         try {
-            // Send a ping to confirm a successful connection
-            $collection = $this->client->selectDatabase('local')->selectCollection('pool');
+            $db = $this->client->selectDatabase('local');
+            $collection = $db->selectCollection('pool');
+
             $collection->insertOne([
                 'post' => $request->post,
                 'get' => $request->get,
@@ -28,7 +29,7 @@ readonly class RequestCaptureController implements ControllerInterface
             $response->write($e->getMessage());
         }
 
-        $response->write('write your request');
+        $response->write('Wrote your requests');
         return $response;
     }
 }
